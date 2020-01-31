@@ -99,7 +99,7 @@ module Ancestry
 
       # optimization - better to go directly to column and avoid parsing
       def ancestors?
-        read_attribute(self.ancestry_base_class.ancestry_column).present?
+        read_attribute(ancestry_base_class.ancestry_column).present?
       end
       alias :has_parent? :ancestors?
 
