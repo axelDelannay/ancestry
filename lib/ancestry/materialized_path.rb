@@ -93,35 +93,35 @@ module Ancestry
 
       # Validates the ancestry, but can also be applied if validation is bypassed to determine if children should be affected
       def sane_ancestry?
-        ancestry_value = read_attribute(self.ancestry_base_class[connection.current_database].constantize.ancestry_column)
+        ancestry_value = read_attribute(self.ancestry_base_class.ancestry_column)
         (ancestry_value.nil? || !ancestor_ids.include?(self.id)) && valid?
       end
 
       # optimization - better to go directly to column and avoid parsing
       def ancestors?
-        read_attribute(self.ancestry_base_class[connection.current_database].constantize.ancestry_column).present?
+        read_attribute(self.ancestry_base_class.ancestry_column).present?
       end
       alias :has_parent? :ancestors?
 
       def ancestor_ids=(value)
-        col = self.ancestry_base_class[connection.current_database].constantize.ancestry_column
+        col = self.ancestry_base_class.ancestry_column
         value.present? ? write_attribute(col, value.join(ANCESTRY_DELIMITER)) : write_attribute(col, nil)
       end
 
       def ancestor_ids
-        parse_ancestry_column(read_attribute(self.ancestry_base_class[connection.current_database].constantize.ancestry_column))
+        parse_ancestry_column(read_attribute(self.ancestry_base_class.ancestry_column))
       end
 
       def ancestor_ids_in_database
-        parse_ancestry_column(send("#{self.ancestry_base_class[connection.current_database].constantize.ancestry_column}#{IN_DATABASE_SUFFIX}"))
+        parse_ancestry_column(send("#{self.ancestry_base_class.ancestry_column}#{IN_DATABASE_SUFFIX}"))
       end
 
       def ancestor_ids_before_last_save
-        parse_ancestry_column(send("#{self.ancestry_base_class[connection.current_database].constantize.ancestry_column}#{BEFORE_LAST_SAVE_SUFFIX}"))
+        parse_ancestry_column(send("#{self.ancestry_base_class.ancestry_column}#{BEFORE_LAST_SAVE_SUFFIX}"))
       end
 
       def parent_id_before_last_save
-        ancestry_was = send("#{self.ancestry_base_class[connection.current_database].constantize.ancestry_column}#{BEFORE_LAST_SAVE_SUFFIX}")
+        ancestry_was = send("#{self.ancestry_base_class.ancestry_column}#{BEFORE_LAST_SAVE_SUFFIX}")
         return unless ancestry_was.present?
 
         parse_ancestry_column(ancestry_was).last
@@ -129,7 +129,7 @@ module Ancestry
 
       # optimization - better to go directly to column and avoid parsing
       def sibling_of?(node)
-        self.read_attribute(self.ancestry_base_class[connection.current_database].constantize.ancestry_column) == node.read_attribute(self.ancestry_base_class[connection.current_database].constantize.ancestry_column)
+        self.read_attribute(self.ancestry_base_class.ancestry_column) == node.read_attribute(self.ancestry_base_class.ancestry_column)
       end
 
       # private (public so class methods can find it)
@@ -138,7 +138,7 @@ module Ancestry
       def child_ancestry
         # New records cannot have children
         raise Ancestry::AncestryException.new('No child ancestry for new record. Save record before performing tree operations.') if new_record?
-        path_was = self.send("#{self.ancestry_base_class[connection.current_database].constantize.ancestry_column}#{IN_DATABASE_SUFFIX}")
+        path_was = self.send("#{self.ancestry_base_class.ancestry_column}#{IN_DATABASE_SUFFIX}")
         path_was.blank? ? id.to_s : "#{path_was}/#{id}"
       end
 

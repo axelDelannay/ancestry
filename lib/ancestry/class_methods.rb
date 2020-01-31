@@ -2,7 +2,7 @@ module Ancestry
   module ClassMethods
     # Fetch tree node if necessary
     def to_node object
-      if object.is_a?(self.ancestry_base_class[connection.current_database].constantize)
+      if object.is_a?(self.ancestry_base_class)
         object
       else
         unscoped_where { |scope| scope.find(object.try(primary_key) || object) }
@@ -11,7 +11,7 @@ module Ancestry
 
     # Scope on relative depth options
     def scope_depth depth_options, depth
-      depth_options.inject(self.ancestry_base_class[connection.current_database].constantize) do |scope, option|
+      depth_options.inject(self.ancestry_base_class) do |scope, option|
         scope_name, relative_depth = option
         if [:before_depth, :to_depth, :at_depth, :from_depth, :after_depth].include? scope_name
           scope.send scope_name, depth + relative_depth
@@ -34,11 +34,9 @@ module Ancestry
     # Get all nodes and sorting them into an empty hash
     def arrange options = {}
       if (order = options.delete(:order))
-        arrange_nodes self.ancestry_base_class[connection.current_database].constantize.order(order).where(options)
+        arrange_nodes self.ancestry_base_class.order(order).where(options)
       else
-        puts connection.current_database
-        puts self.ancestry_base_class
-        arrange_nodes self.ancestry_base_class[connection.current_database].constantize.where(options)
+        arrange_nodes self.ancestry_base_class.where(options)
       end
     end
 
@@ -137,7 +135,7 @@ module Ancestry
     def restore_ancestry_integrity!
       parent_ids = {}
       # Wrap the whole thing in a transaction ...
-      self.ancestry_base_class[connection.current_database].constantize.transaction do
+      self.ancestry_base_class.transaction do
         unscoped_where do |scope|
           # For each node ...
           scope.find_each do |node|
@@ -189,7 +187,7 @@ module Ancestry
     def rebuild_depth_cache!
       raise Ancestry::AncestryException.new("Cannot rebuild depth cache for model without depth caching.") unless respond_to? :depth_cache_column
 
-      self.ancestry_base_class[connection.current_database].constantize.transaction do
+      self.ancestry_base_class.transaction do
         unscoped_where do |scope|
           scope.find_each do |node|
             node.update_attribute depth_cache_column, node.depth
@@ -200,11 +198,11 @@ module Ancestry
 
     def unscoped_where
       if ActiveRecord::VERSION::MAJOR < 4
-        self.ancestry_base_class[connection.current_database].constantize.unscoped do
-          yield self.ancestry_base_class[connection.current_database].constantize
+        self.ancestry_base_class.unscoped do
+          yield self.ancestry_base_class
         end
       else
-        yield self.ancestry_base_class[connection.current_database].constantize.unscope(:where)
+        yield self.ancestry_base_class.unscope(:where)
       end
     end
 

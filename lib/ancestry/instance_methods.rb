@@ -23,7 +23,7 @@ module Ancestry
     # Apply orphan strategy (before destroy - no changes)
     def apply_orphan_strategy
       if !ancestry_callbacks_disabled? && !new_record?
-        case self.ancestry_base_class[connection.current_database].constantize.orphan_strategy
+        case self.ancestry_base_class.orphan_strategy
         when :rootify # make all children root if orphan strategy is rootify
           unscoped_descendants.each do |descendant|
             descendant.without_ancestry_callbacks do
@@ -50,7 +50,7 @@ module Ancestry
 
     # Touch each of this record's ancestors (after save)
     def touch_ancestors_callback
-      if !ancestry_callbacks_disabled? && self.ancestry_base_class[connection.current_database].constantize.touch_ancestors
+      if !ancestry_callbacks_disabled? && self.ancestry_base_class.touch_ancestors
         # Touch each of the old *and* new ancestors
         unscoped_current_and_previous_ancestors.each do |ancestor|
           ancestor.without_ancestry_callbacks do
@@ -80,7 +80,7 @@ module Ancestry
     def update_parent_counter_cache
       changed =
         if ActiveRecord::VERSION::STRING >= '5.1.0'
-          saved_change_to_attribute?(self.ancestry_base_class[connection.current_database].constantize.ancestry_column)
+          saved_change_to_attribute?(self.ancestry_base_class.ancestry_column)
         else
           ancestry_changed?
         end
@@ -95,7 +95,7 @@ module Ancestry
     end
 
     def _counter_cache_column
-      self.ancestry_base_class[connection.current_database].constantize.counter_cache_column.to_s
+      self.ancestry_base_class.counter_cache_column.to_s
     end
 
     # Ancestors
@@ -106,7 +106,7 @@ module Ancestry
     alias :has_parent? :ancestors?
 
     def ancestry_changed?
-      column = self.ancestry_base_class[connection.current_database].constantize.ancestry_column.to_s
+      column = self.ancestry_base_class.ancestry_column.to_s
       if ActiveRecord::VERSION::STRING >= '5.1.0'
         # These methods return nil if there are no changes.
         # This was fixed in a refactoring in rails 6.0: https://github.com/rails/rails/pull/35933
@@ -117,8 +117,8 @@ module Ancestry
     end
 
     def ancestors depth_options = {}
-      return self.ancestry_base_class[connection.current_database].constantize.none unless ancestors?
-      self.ancestry_base_class[connection.current_database].constantize.scope_depth(depth_options, depth).ordered_by_ancestry.ancestors_of(self)
+      return self.ancestry_base_class.none unless ancestors?
+      self.ancestry_base_class.scope_depth(depth_options, depth).ordered_by_ancestry.ancestors_of(self)
     end
 
     def path_ids
@@ -130,7 +130,7 @@ module Ancestry
     end
 
     def path depth_options = {}
-      self.ancestry_base_class[connection.current_database].constantize.scope_depth(depth_options, depth).ordered_by_ancestry.inpath_of(self)
+      self.ancestry_base_class.scope_depth(depth_options, depth).ordered_by_ancestry.inpath_of(self)
     end
 
     def depth
@@ -138,7 +138,7 @@ module Ancestry
     end
 
     def cache_depth
-      write_attribute self.ancestry_base_class[connection.current_database].constantize.depth_cache_column, depth
+      write_attribute self.ancestry_base_class.depth_cache_column, depth
     end
 
     def ancestor_of?(node)
@@ -192,11 +192,11 @@ module Ancestry
     # Children
 
     def children
-      self.ancestry_base_class[connection.current_database].constantize.children_of(self)
+      self.ancestry_base_class.children_of(self)
     end
 
     def child_ids
-      children.pluck(self.ancestry_base_class[connection.current_database].constantize.primary_key)
+      children.pluck(self.ancestry_base_class.primary_key)
     end
 
     def has_children?
@@ -216,12 +216,12 @@ module Ancestry
     # Siblings
 
     def siblings
-      self.ancestry_base_class[connection.current_database].constantize.siblings_of(self)
+      self.ancestry_base_class.siblings_of(self)
     end
 
     # NOTE: includes self
     def sibling_ids
-      siblings.pluck(self.ancestry_base_class[connection.current_database].constantize.primary_key)
+      siblings.pluck(self.ancestry_base_class.primary_key)
     end
 
     def has_siblings?
@@ -241,11 +241,11 @@ module Ancestry
     # Descendants
 
     def descendants depth_options = {}
-      self.ancestry_base_class[connection.current_database].constantize.ordered_by_ancestry.scope_depth(depth_options, depth).descendants_of(self)
+      self.ancestry_base_class.ordered_by_ancestry.scope_depth(depth_options, depth).descendants_of(self)
     end
 
     def descendant_ids depth_options = {}
-      descendants(depth_options).pluck(self.ancestry_base_class[connection.current_database].constantize.primary_key)
+      descendants(depth_options).pluck(self.ancestry_base_class.primary_key)
     end
 
     def descendant_of?(node)
@@ -255,11 +255,11 @@ module Ancestry
     # Indirects
 
     def indirects depth_options = {}
-      self.ancestry_base_class[connection.current_database].constantize.ordered_by_ancestry.scope_depth(depth_options, depth).indirects_of(self)
+      self.ancestry_base_class.ordered_by_ancestry.scope_depth(depth_options, depth).indirects_of(self)
     end
 
     def indirect_ids depth_options = {}
-      indirects(depth_options).pluck(self.ancestry_base_class[connection.current_database].constantize.primary_key)
+      indirects(depth_options).pluck(self.ancestry_base_class.primary_key)
     end
 
     def indirect_of?(node)
@@ -269,11 +269,11 @@ module Ancestry
     # Subtree
 
     def subtree depth_options = {}
-      self.ancestry_base_class[connection.current_database].constantize.ordered_by_ancestry.scope_depth(depth_options, depth).subtree_of(self)
+      self.ancestry_base_class.ordered_by_ancestry.scope_depth(depth_options, depth).subtree_of(self)
     end
 
     def subtree_ids depth_options = {}
-      subtree(depth_options).pluck(self.ancestry_base_class[connection.current_database].constantize.primary_key)
+      subtree(depth_options).pluck(self.ancestry_base_class.primary_key)
     end
 
     # Callback disabling
@@ -291,7 +291,7 @@ module Ancestry
   private
     def unscoped_descendants
       unscoped_where do |scope|
-        scope.where self.ancestry_base_class[connection.current_database].constantize.descendant_conditions(self)
+        scope.where self.ancestry_base_class.descendant_conditions(self)
       end
     end
 
@@ -309,7 +309,7 @@ module Ancestry
     end
 
     def unscoped_where
-      self.ancestry_base_class[connection.current_database].constantize.unscoped_where do |scope|
+      self.ancestry_base_class.unscoped_where do |scope|
         yield scope
       end
     end
