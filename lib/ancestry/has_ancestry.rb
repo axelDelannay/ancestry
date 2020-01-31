@@ -101,6 +101,7 @@ module Ancestry
     def acts_as_tree(*args)
       return super if defined?(super)
       has_ancestry(*args)
+      binding.pry
     end
 
     private
