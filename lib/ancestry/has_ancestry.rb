@@ -29,14 +29,6 @@ module Ancestry
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class_variables
       self.ancestry_base_class_variables = generate_base_classes
-
-      databases = Rails.configuration.database_configuration[Rails.env]
-      databases.each do |key, database|
-        db = key.titleize.parameterize(separator: '_').classify
-        @ancestry_base_class_variables.merge({
-          "#{database["database"]}" => "#{db}Category"
-        })
-      end
       
       # Touch ancestors after updating
       cattr_accessor :touch_ancestors
