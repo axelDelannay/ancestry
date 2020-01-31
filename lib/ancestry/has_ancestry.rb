@@ -14,14 +14,14 @@ module Ancestry
       self.ancestry_column = options[:ancestry_column] || :ancestry
 
       # Save self as base class (for STI)
-      cattr_accessor :ancestry_base_class_variables
-      self.ancestry_base_class_variables = {} 
+      cattr_accessor :ancestry_base_class
+      self.ancestry_base_class = {} 
 
       db_conf = Rails.configuration.database_configuration[Rails.env]
       databases = db_conf.keys
       databases.each do |database|
         db = database.titleize.parameterize(separator: '_').classify
-        self.ancestry_base_class_variables.merge({
+        self.ancestry_base_class.merge({
           "#{database}" => "#{db}Category"
         })
       end
@@ -102,10 +102,6 @@ module Ancestry
     def acts_as_tree(*args)
       return super if defined?(super)
       has_ancestry(*args)
-    end
-
-    def ancestry_base_class
-      self.ancestry_base_class_variables[connection.current_database].constantize
     end
 
     private
