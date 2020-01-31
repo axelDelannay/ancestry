@@ -104,8 +104,8 @@ module Ancestry
       has_ancestry(*args)
     end
 
-    def ancestry_base_class
-      ancestry_base_class_variables[connection.current_database].constantize
+    def self.ancestry_base_class
+      self.ancestry_base_class_variables[connection.current_database].constantize
     end
 
     private
