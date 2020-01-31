@@ -22,7 +22,7 @@ module Ancestry
       databases.each do |database|
         db = database.titleize.parameterize(separator: '_').classify
         self.ancestry_base_class_variables.merge({
-          "#{database}" => "#{db}Category".constantize
+          "#{database}" => "#{db}Category"
         })
       end
       
@@ -105,7 +105,7 @@ module Ancestry
     end
 
     def ancestry_base_class
-      ancestry_base_class_variables[connection.current_database]
+      ancestry_base_class_variables[connection.current_database].constantize
     end
 
     private
