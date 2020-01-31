@@ -15,6 +15,8 @@ module Ancestry
 
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class
+
+      binding.pry
       self.ancestry_base_class = self
 
       # Touch ancestors after updating
