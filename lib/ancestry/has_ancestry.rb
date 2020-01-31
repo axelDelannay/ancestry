@@ -14,7 +14,7 @@ module Ancestry
       self.ancestry_column = options[:ancestry_column] || :ancestry
 
       # Save self as base class (for STI)
-      cattr_accessor :ancestry_base_class
+      cattr_accessor :ancestry_base_class_variables
       self.ancestry_base_class_variables = {} 
 
       db_conf = Rails.configuration.database_configuration[Rails.env]
@@ -104,7 +104,7 @@ module Ancestry
       has_ancestry(*args)
     end
 
-    def self.ancestry_base_class
+    def ancestry_base_class
       ancestry_base_class_variables[connection.current_database]
     end
 
