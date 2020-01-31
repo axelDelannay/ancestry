@@ -36,6 +36,8 @@ module Ancestry
       if (order = options.delete(:order))
         arrange_nodes self.ancestry_base_class[connection.current_database].constantize.order(order).where(options)
       else
+        puts connection.current_database
+        puts self.ancestry_base_class
         arrange_nodes self.ancestry_base_class[connection.current_database].constantize.where(options)
       end
     end
