@@ -14,13 +14,13 @@ module Ancestry
       self.ancestry_column = options[:ancestry_column] || :ancestry
 
       # Save self as base class (for STI)
-      # cattr_accessor :ancestry_base_class
-      @ancestry_base_class_variables = {} 
+      cattr_accessor :ancestry_base_class_variables
+      ancestry_base_class_variables = {} 
 
       databases = Rails.configuration.database_configuration[Rails.env]
       databases.each do |key, database|
         db = key.titleize.parameterize(separator: '_').classify
-        @ancestry_base_class_variables.merge({
+        ancestry_base_class_variables.merge({
           "#{database["database"]}" => "#{db}Category"
         })
       end
