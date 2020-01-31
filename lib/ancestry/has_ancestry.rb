@@ -10,7 +10,11 @@ module Ancestry
           "#{database["database"]}" => "#{db}Category"
         })
       end
+
+      binding.pry
+      puts json
       json
+
     end
 
     def has_ancestry options = {}
@@ -29,6 +33,7 @@ module Ancestry
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class_variables
       self.ancestry_base_class_variables = generate_base_classes
+      puts self.ancestry_base_class_variables
       
       # Touch ancestors after updating
       cattr_accessor :touch_ancestors
