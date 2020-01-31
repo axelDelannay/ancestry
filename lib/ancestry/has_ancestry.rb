@@ -26,7 +26,7 @@ module Ancestry
       puts databases
       databases.each do |database|
         db = database.titleize.parameterize(separator: '_').classify
-        self.ancestry_base_class.merge({
+        ancestry_base_class.merge({
           "#{database}" => "#{db}Category"
         })
       end
