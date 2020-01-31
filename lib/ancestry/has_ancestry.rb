@@ -15,7 +15,7 @@ module Ancestry
 
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class
-      self.ancestry_base_class = {} 
+      self.ancestry_base_class = { principal: "Principal" } 
 
       db_conf = Rails.configuration.database_configuration[Rails.env]
       databases = db_conf.keys
