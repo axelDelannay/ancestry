@@ -1,6 +1,11 @@
 module Ancestry
   module ClassMethods
     # Fetch tree node if necessary
+
+    def ancestry_base_class
+      @ancestry_base_class_variables[connection.current_database].constantize
+    end
+
     def to_node object
       if object.is_a?(self.ancestry_base_class)
         object

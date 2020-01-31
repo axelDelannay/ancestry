@@ -103,10 +103,6 @@ module Ancestry
       has_ancestry(*args)
     end
 
-    def self.ancestry_base_class
-      @ancestry_base_class_variables[connection.current_database].constantize
-    end
-
     private
 
     def derive_ancestry_pattern(primary_key_format, delimiter = '/')
