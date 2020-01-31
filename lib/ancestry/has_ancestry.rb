@@ -15,10 +15,17 @@ module Ancestry
 
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class
+      self.ancestry_base_class_variables = {} 
 
-      binding.pry
-      self.ancestry_base_class = self
-
+      db_conf = Rails.configuration.database_configuration[Rails.env]
+      databases = db_conf.keys
+      databases.each do |database|
+        db = database.titleize.parameterize(separator: '_').classify
+        self.ancestry_base_class_variables.merge({
+          "#{database}" => "#{db}Category".constantize
+        })
+      end
+      
       # Touch ancestors after updating
       cattr_accessor :touch_ancestors
       self.touch_ancestors = options[:touch] || false
@@ -95,6 +102,10 @@ module Ancestry
     def acts_as_tree(*args)
       return super if defined?(super)
       has_ancestry(*args)
+    end
+
+    def self.ancestry_base_class
+      ancestry_base_class_variables[connection.current_database]
     end
 
     private

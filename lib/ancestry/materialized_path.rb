@@ -4,12 +4,6 @@ module Ancestry
     IN_DATABASE_SUFFIX = ActiveRecord::VERSION::STRING >= '5.1.0' ? '_in_database'.freeze : '_was'.freeze
     ANCESTRY_DELIMITER='/'.freeze
 
-    Arel::Table.new("db_name.")
-
-    def arel_table_db
-      Arel::Table.new("#{connection.current_database}.#{table_name}")
-    end
-
     def self.extended(base)
       base.send(:include, InstanceMethods)
     end
@@ -19,30 +13,30 @@ module Ancestry
     end
 
     def roots
-      where(arel_table_db[ancestry_column].eq(nil))
+      where(arel_table[ancestry_column].eq(nil))
     end
 
     def ancestors_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       where(t[primary_key].in(node.ancestor_ids))
     end
 
     def inpath_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       where(t[primary_key].in(node.path_ids))
     end
 
     def children_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       where(t[ancestry_column].eq(node.child_ancestry))
     end
 
     # indirect = anyone who is a descendant, but not a child
     def indirects_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       # rails has case sensitive matching.
       if ActiveRecord::VERSION::MAJOR >= 5
@@ -58,7 +52,7 @@ module Ancestry
 
     # deprecated
     def descendant_conditions(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       # rails has case sensitive matching.
       if ActiveRecord::VERSION::MAJOR >= 5
@@ -69,13 +63,13 @@ module Ancestry
     end
 
     def subtree_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       where(descendant_conditions(node).or(t[primary_key].eq(node.id)))
     end
 
     def siblings_of(object)
-      t = arel_table_db
+      t = arel_table
       node = to_node(object)
       where(t[ancestry_column].eq(node[ancestry_column]))
     end
@@ -83,11 +77,11 @@ module Ancestry
     def ordered_by_ancestry(order = nil)
       if %w(mysql mysql2 sqlite sqlite3 postgresql).include?(connection.adapter_name.downcase) && ActiveRecord::VERSION::MAJOR >= 5
         reorder(
-          Arel::Nodes::Ascending.new(Arel::Nodes::NamedFunction.new('COALESCE', [arel_table_db[ancestry_column], Arel.sql("''")])),
+          Arel::Nodes::Ascending.new(Arel::Nodes::NamedFunction.new('COALESCE', [arel_table[ancestry_column], Arel.sql("''")])),
           order
         )
       else
-        reorder(Arel.sql("(CASE WHEN #{connection.quote_table_name(arel_table_db.name)}.#{connection.quote_column_name(ancestry_column)} IS NULL THEN 0 ELSE 1 END), #{connection.quote_table_name(arel_table_db.name)}.#{connection.quote_column_name(ancestry_column)}"), order)
+        reorder(Arel.sql("(CASE WHEN #{connection.quote_table_name(table_name)}.#{connection.quote_column_name(ancestry_column)} IS NULL THEN 0 ELSE 1 END), #{connection.quote_table_name(table_name)}.#{connection.quote_column_name(ancestry_column)}"), order)
       end
     end
 
