@@ -1,5 +1,18 @@
 module Ancestry
   module HasAncestry
+
+    def generate_base_classes
+      databases = Rails.configuration.database_configuration[Rails.env]
+      json = {}
+      databases.each do |key, database|
+        db = key.titleize.parameterize(separator: '_').classify
+        json.merge({
+          "#{database["database"]}" => "#{db}Category"
+        })
+      end
+      json
+    end
+
     def has_ancestry options = {}
       # Check options
       raise Ancestry::AncestryException.new("Options for has_ancestry must be in a hash.") unless options.is_a? Hash
@@ -15,12 +28,12 @@ module Ancestry
 
       # Save self as base class (for STI)
       cattr_accessor :ancestry_base_class_variables
-      ancestry_base_class_variables = {} 
+      self.ancestry_base_class_variables = generate_base_classes
 
       databases = Rails.configuration.database_configuration[Rails.env]
       databases.each do |key, database|
         db = key.titleize.parameterize(separator: '_').classify
-        ancestry_base_class_variables.merge({
+        @ancestry_base_class_variables.merge({
           "#{database["database"]}" => "#{db}Category"
         })
       end
