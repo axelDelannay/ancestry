@@ -18,7 +18,12 @@ module Ancestry
       self.ancestry_base_class = { principal: "Principal" } 
 
       db_conf = Rails.configuration.database_configuration[Rails.env]
+
+      puts db_conf
+
       databases = db_conf.keys
+
+      puts databases
       databases.each do |database|
         db = database.titleize.parameterize(separator: '_').classify
         self.ancestry_base_class.merge({
