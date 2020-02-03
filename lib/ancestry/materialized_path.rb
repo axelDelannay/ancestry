@@ -4,6 +4,12 @@ module Ancestry
     IN_DATABASE_SUFFIX = ActiveRecord::VERSION::STRING >= '5.1.0' ? '_in_database'.freeze : '_was'.freeze
     ANCESTRY_DELIMITER='/'.freeze
 
+
+    def ancestry_base_class
+      ancestry_base_class_variables[connection.current_database].constantize
+    end
+
+    
     def self.extended(base)
       base.send(:include, InstanceMethods)
     end

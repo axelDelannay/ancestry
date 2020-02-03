@@ -38,7 +38,6 @@ module Ancestry
 
     # Get all nodes and sorting them into an empty hash
     def arrange options = {}
-      binding.pry
       if (order = options.delete(:order))
         arrange_nodes self.ancestry_base_class.order(order).where(options)
       else
