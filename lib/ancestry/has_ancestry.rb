@@ -106,7 +106,10 @@ module Ancestry
     def acts_as_tree(*args)
       return super if defined?(super)
       has_ancestry(*args)
-      binding.pry
+    end
+
+    def self.ancestry_base_class
+      self.ancestry_base_class_variables[connection.current_database].constantize
     end
 
     private
