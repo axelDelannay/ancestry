@@ -3,6 +3,8 @@ module Ancestry
     # Fetch tree node if necessary
 
     def ancestry_base_class
+      puts "class_methods"
+      binding.pry
       ancestry_base_class_variables[connection.current_database].constantize
     end
 

@@ -2,9 +2,11 @@ module Ancestry
   module InstanceMethods
 
     def ancestry_base_class
+      puts "instance_methods"
+      binding.pry
       ancestry_base_class_variables[connection.current_database].constantize
     end
-    
+
     # Validate that the ancestors don't include itself
     def ancestry_exclude_self
       errors.add(:base, "#{self.class.name.humanize} cannot be a descendant of itself.") if ancestor_ids.include? self.id
