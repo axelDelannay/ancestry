@@ -109,8 +109,6 @@ module Ancestry
     end
 
     def ancestry_base_class
-      puts "has_ancestry"
-      binding.pry
       self.ancestry_base_class_variables[connection.current_database].constantize
     end
 

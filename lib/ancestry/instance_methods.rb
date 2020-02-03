@@ -2,7 +2,7 @@ module Ancestry
   module InstanceMethods
 
     def ancestry_base_class
-      ancestry_base_class_variables[self.class.connection.current_database].constantize
+      self.class.ancestry_base_class
     end
 
     # Validate that the ancestors don't include itself
