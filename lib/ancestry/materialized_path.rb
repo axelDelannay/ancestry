@@ -6,8 +6,6 @@ module Ancestry
 
 
     def ancestry_base_class
-      puts "materialized_path"
-      binding.pry
       ancestry_base_class_variables[connection.current_database].constantize
     end
 
