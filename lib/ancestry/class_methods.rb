@@ -2,7 +2,7 @@ module Ancestry
   module ClassMethods
     # Fetch tree node if necessary
 
-    def self.ancestry_base_class
+    def ancestry_base_class
       ancestry_base_class_variables[connection.current_database].constantize
     end
 
@@ -39,9 +39,9 @@ module Ancestry
     # Get all nodes and sorting them into an empty hash
     def arrange options = {}
       if (order = options.delete(:order))
-        arrange_nodes self.ancestry_base_class.order(order).where(options)
+        arrange_nodes ancestry_base_class.order(order).where(options)
       else
-        arrange_nodes self.ancestry_base_class.where(options)
+        arrange_nodes ancestry_base_class.where(options)
       end
     end
 
